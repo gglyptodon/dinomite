@@ -6,7 +6,7 @@ use std::fmt::Write as _;
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 struct Position(usize, usize);
 
-struct Dinomite {
+pub struct Dinomite {
     width: usize,
     height: usize,
     seen: HashSet<Position>,
@@ -18,7 +18,7 @@ struct Dinomite {
 impl Dinomite {
     // Create a width x height field with num_dinos hidden dinos.
     // Upon starting no fields have been opened, no flags are set.
-    fn new(width: usize, height: usize, num_dinos: usize) -> Self {
+    pub fn new(width: usize, height: usize, num_dinos: usize) -> Self {
         Dinomite {
             width,
             height,
