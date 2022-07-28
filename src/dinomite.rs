@@ -1,3 +1,4 @@
+use crate::dinomite::PositionResult::{Clear, Dino, DinosInSurrounding};
 use itertools::Itertools;
 use rand::Rng;
 use std::cmp::min;
@@ -5,6 +6,7 @@ use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::fmt::{Display, Formatter};
 
+#[derive(Debug, PartialEq)]
 pub enum PositionResult {
     Clear,                     // 0 dinos nearby
     DinosInSurrounding(usize), //
@@ -53,18 +55,30 @@ impl Dinomite {
     }
 
     fn check_position(&self, pos: &Position) -> PositionResult {
-        todo!()
+        let mut surrounding = 0usize;
+        if self.dinos.contains(pos) {
+            return Dino;
+        }
+        for n in self.get_neighbors(pos) {
+            if self.dinos.contains(&n) {
+                surrounding += 1;
+            }
+        }
+        match surrounding {
+            0 => Clear,
+            _ => DinosInSurrounding(surrounding),
+        }
     }
 
     fn get_neighbors(&self, pos: &Position) -> impl Iterator<Item = Position> {
         let neighbors = [
-            (pos.0.saturating_sub(1), pos.1),                       //left
-            (pos.0.saturating_sub(1), pos.1.saturating_sub(1)),     // top left
-            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height)), // bottom left
-            (pos.0, pos.1.saturating_sub(1)),                       // top
-            (pos.0, min(pos.1 + 1, self.height)),                   // bottom
-            (min(pos.0 + 1, self.width), pos.1),                    // right
-            (min(pos.0 + 1, self.width), pos.1.saturating_sub(1)),  // top right
+            (pos.0.saturating_sub(1), pos.1),                          //left
+            (pos.0.saturating_sub(1), pos.1.saturating_sub(1)),        // top left
+            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height)),    // bottom left
+            (pos.0, pos.1.saturating_sub(1)),                          // top
+            (pos.0, min(pos.1 + 1, self.height)),                      // bottom
+            (min(pos.0 + 1, self.width), pos.1),                       // right
+            (min(pos.0 + 1, self.width), pos.1.saturating_sub(1)),     // top right
             (min(pos.0 + 1, self.width), min(pos.1 + 1, self.height)), // bottom right
         ];
         neighbors.into_iter().unique().map(|x| Position(x.0, x.1))
@@ -96,7 +110,8 @@ impl Display for Dinomite {
 
 #[cfg(test)]
 pub mod test {
-    use crate::dinomite::{Dinomite, Position};
+    use crate::dinomite::PositionResult::DinosInSurrounding;
+    use crate::dinomite::{Dinomite, Position, PositionResult};
     use std::collections::HashSet;
 
     #[test]
@@ -132,5 +147,17 @@ pub mod test {
                 .collect::<HashSet<Position>>(),
             expected
         );
+    }
+
+    #[test]
+    fn test_surrounding() {
+        let expected: PositionResult = DinosInSurrounding(3);
+        let mut dinomite = Dinomite::new(10, 10, 0);
+        dinomite.dinos.insert(Position(0, 0));
+        dinomite.dinos.insert(Position(1, 0));
+        dinomite.dinos.insert(Position(1, 1));
+        let pos = Position(0, 1);
+        println!("{}", dinomite);
+        assert_eq!(dinomite.check_position(&pos), expected);
     }
 }
