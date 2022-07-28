@@ -1,2 +1,2 @@
-# dinomyte
+# dinomite
 a minesweeper clone

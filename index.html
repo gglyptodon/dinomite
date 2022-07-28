@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dinomite</title>
+    <style>
+        html {
+            font-size: 200%;
+            font-family: monospace;
+        }
+
+        .field {
+            text-decoration: none;
+            text-align: center;
+            height: 1.5rem;
+            width: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+
+
+
+<div id="game">
+
+</div>
+
+<script type="module">
+    import init,{ getState, todo... } from "./pkg/dinomite.js";
+    async function main() {
+        await init();
+    }
+    main();
+
+    function render() {
+        let state = getState();
+        let game = document.getElementById("game");
+        game.innerHTML = "";
+    }
+</script>
+</body>
+</html>
