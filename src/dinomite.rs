@@ -1,7 +1,7 @@
 use rand::Rng;
 use std::collections::HashSet;
-use std::fmt::{Display, Formatter};
 use std::fmt::Write as _;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 struct Position(usize, usize);
@@ -35,28 +35,43 @@ impl Dinomite {
             game_over: false,
         }
     }
+    pub fn reconfigure(&mut self, height: usize, width: usize, num_dinos: usize) {
+        let tmp = Dinomite::new(height, width, num_dinos);
+        self.dinos = tmp.dinos.clone();
+        self.flags = tmp.flags.clone();
+        self.width = tmp.width;
+        self.height = tmp.height;
+    }
 }
 
 impl Display for Dinomite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut board = String::new();
-        for d in &self.dinos{
+        for d in &self.dinos {
             write!(board, "🦖 at {:>1?} ", d)?;
         }
-        write!(f,"{}", board)
+        write!(f, "{}", board)
     }
 }
 
-
 #[cfg(test)]
-pub mod test{
+pub mod test {
     use crate::dinomite::Dinomite;
 
     #[test]
-    fn test_repr(){
-        let expected =5;
+    fn test_repr() {
+        let expected = 5;
         let dinomite = Dinomite::new(10, 10, expected);
         print!("{}", dinomite);
+        assert_eq!(dinomite.dinos.len(), expected);
+    }
+    #[test]
+    fn test_reset() {
+        let expected = 10;
+        let mut dinomite = Dinomite::new(10, 10, 5);
+        println!("{}", dinomite);
+        dinomite.reconfigure(20, 20, expected);
+        println!("{}", dinomite);
         assert_eq!(dinomite.dinos.len(), expected);
     }
 }

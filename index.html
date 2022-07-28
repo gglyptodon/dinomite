@@ -22,10 +22,11 @@
 </div>
 
 <script type="module">
-    import init, { getState } from "./pkg/dinomite.js";
+    import init, { getState, newGame } from "./pkg/dinomite.js";
     async function main() {
         await init();
         render();
+
     }
     main();
     function render() {
@@ -33,6 +34,12 @@
         console.log(state);
         let game = document.getElementById("game");
         game.innerText = state;
+        newGame();
+        let new_state = getState();
+        let div = document.createElement("div")
+        div.append(new_state);
+        document.body.appendChild(div);
+
     }
 </script>
 </body>
