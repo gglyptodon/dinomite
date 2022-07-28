@@ -86,6 +86,13 @@ impl Dinomite {
     fn get_neighboring_dino_count(&self, pos: &Position) -> usize {
         todo!()
     }
+    fn toggle_flag(&mut self, pos: &Position) {
+        if self.flags.contains(pos) {
+            self.flags.remove(pos);
+        } else {
+            self.flags.insert(pos.clone());
+        }
+    }
 }
 
 impl Display for Dinomite {
@@ -159,5 +166,17 @@ pub mod test {
         let pos = Position(0, 1);
         println!("{}", dinomite);
         assert_eq!(dinomite.check_position(&pos), expected);
+    }
+
+    #[test]
+    fn test_toggle_flag() {
+        let expected = 2;
+        let mut dinomite = Dinomite::new(10, 10, 0);
+        dinomite.toggle_flag(&Position(0, 0));
+        dinomite.toggle_flag(&Position(0, 0));
+        dinomite.toggle_flag(&Position(1, 0));
+        dinomite.toggle_flag(&Position(1, 1));
+        println!("{}", dinomite);
+        assert_eq!(dinomite.flags.len(), expected);
     }
 }
