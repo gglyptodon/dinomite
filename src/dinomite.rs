@@ -39,6 +39,7 @@ impl Dinomite {
         let tmp = Dinomite::new(height, width, num_dinos);
         self.dinos = tmp.dinos.clone();
         self.flags = tmp.flags.clone();
+        self.seen = tmp.seen.clone();
         self.width = tmp.width;
         self.height = tmp.height;
     }
