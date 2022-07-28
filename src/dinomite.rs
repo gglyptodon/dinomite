@@ -1,4 +1,4 @@
-use crate::dinomite::PositionResult::{Clear, Dino, DinosInSurrounding};
+use crate::dinomite::PositionResult::{Clear, Dino, DinosInSurrounding, Flagged};
 use itertools::Itertools;
 use rand::Rng;
 use std::cmp::min;
@@ -54,10 +54,18 @@ impl Dinomite {
         self.height = tmp.height;
     }
 
-    fn check_position(&self, pos: &Position) -> PositionResult {
+    fn check_position(&mut self, pos: &Position) -> PositionResult {
         let mut surrounding = 0usize;
+
         if self.dinos.contains(pos) {
+            self.game_over = true;
             return Dino;
+        }
+        if self.flags.contains(pos) {
+            return Flagged;
+        }
+        if self.seen.contains(pos) {
+            return Clear;
         }
         for n in self.get_neighbors(pos) {
             if self.dinos.contains(&n) {
@@ -65,7 +73,13 @@ impl Dinomite {
             }
         }
         match surrounding {
-            0 => Clear,
+            0 => {
+                self.seen.insert(pos.clone());
+                for n in self.get_neighbors(pos) {
+                    self.check_position(&n);
+                }
+                Clear
+            }
             _ => DinosInSurrounding(surrounding),
         }
     }
@@ -178,5 +192,18 @@ pub mod test {
         dinomite.toggle_flag(&Position(1, 1));
         println!("{}", dinomite);
         assert_eq!(dinomite.flags.len(), expected);
+    }
+
+    #[test]
+    fn test_check_pos_clear() {
+        let expected = 96;
+        let mut dinomite = Dinomite::new(9, 9, 0);
+        dinomite.dinos.insert(Position(0, 0));
+
+        println!("{}", dinomite);
+        println!("{:?}", dinomite.seen);
+
+        dinomite.check_position(&Position(5, 5));
+        assert_eq!(dinomite.seen.len(), expected);
     }
 }
