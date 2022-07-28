@@ -18,25 +18,21 @@
     </style>
 </head>
 <body>
-
-
-
-
 <div id="game">
-
 </div>
 
 <script type="module">
-    import init,{ getState, todo... } from "./pkg/dinomite.js";
+    import init, { getState } from "./pkg/dinomite.js";
     async function main() {
         await init();
+        render();
     }
     main();
-
     function render() {
         let state = getState();
+        console.log(state);
         let game = document.getElementById("game");
-        game.innerHTML = "";
+        game.innerText = state;
     }
 </script>
 </body>
