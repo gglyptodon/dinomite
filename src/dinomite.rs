@@ -48,9 +48,22 @@ impl Dinomite {
 impl Display for Dinomite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut board = String::new();
-        for d in &self.dinos {
-            write!(board, "🦖 at {:>1?} ", d)?;
+        for y in 0..self.height {
+            for x in 0..self.width {
+                if self.dinos.contains(&Position(x, y)) {
+                    write!(board, "🦖")?;
+                } else if self.flags.contains(&Position(x, y)) {
+                    write!(board, " F")?;
+                } else {
+                    write!(board, " _")?;
+                }
+            }
+            write!(board, "\n")?;
         }
+
+        //for d in &self.dinos {
+        //    write!(board, "🦖 at {:>1?} ", d)?;
+        //}
         write!(f, "{}", board)
     }
 }
