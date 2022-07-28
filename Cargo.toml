@@ -9,6 +9,7 @@ edition = "2021"
 wasm-bindgen = "0.2.82"
 rand = "0.8.5"
 getrandom = { version = "0.2", features = ["js"] }
+itertools = "0.10.3"
 
 [lib]
 crate-type=["cdylib"]

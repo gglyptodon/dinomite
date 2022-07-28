@@ -1,8 +1,16 @@
+use itertools::Itertools;
 use rand::Rng;
+use std::cmp::min;
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::fmt::{Display, Formatter};
 
+pub enum PositionResult {
+    Clear,                     // 0 dinos nearby
+    DinosInSurrounding(usize), //
+    Dino,
+    Flagged,
+}
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 struct Position(usize, usize);
 
@@ -43,6 +51,27 @@ impl Dinomite {
         self.width = tmp.width;
         self.height = tmp.height;
     }
+
+    fn check_position(&self, pos: &Position) -> PositionResult {
+        todo!()
+    }
+
+    fn get_neighbors(&self, pos: &Position) -> impl Iterator<Item = Position> {
+        let neighbors = [
+            (pos.0.saturating_sub(1), pos.1),                       //left
+            (pos.0.saturating_sub(1), pos.1.saturating_sub(1)),     // top left
+            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height)), // bottom left
+            (pos.0, pos.1.saturating_sub(1)),                       // top
+            (pos.0, min(pos.1 + 1, self.height)),                   // bottom
+            (min(pos.0 + 1, self.width), pos.1),                    // right
+            (min(pos.0 + 1, self.width), pos.1.saturating_sub(1)),  // top right
+            (min(pos.0 + 1, self.width), min(pos.1 + 1, self.height)), // bottom right
+        ];
+        neighbors.into_iter().unique().map(|x| Position(x.0, x.1))
+    }
+    fn get_neighboring_dino_count(&self, pos: &Position) -> usize {
+        todo!()
+    }
 }
 
 impl Display for Dinomite {
@@ -61,16 +90,14 @@ impl Display for Dinomite {
             write!(board, "\n")?;
         }
 
-        //for d in &self.dinos {
-        //    write!(board, "🦖 at {:>1?} ", d)?;
-        //}
         write!(f, "{}", board)
     }
 }
 
 #[cfg(test)]
 pub mod test {
-    use crate::dinomite::Dinomite;
+    use crate::dinomite::{Dinomite, Position};
+    use std::collections::HashSet;
 
     #[test]
     fn test_repr() {
@@ -87,5 +114,23 @@ pub mod test {
         dinomite.reconfigure(20, 20, expected);
         println!("{}", dinomite);
         assert_eq!(dinomite.dinos.len(), expected);
+    }
+    #[test]
+    fn test_neighbors() {
+        let expected: HashSet<Position> = HashSet::from([
+            Position(0, 0),
+            Position(0, 1),
+            Position(1, 0),
+            Position(1, 1),
+        ]);
+        let mut dinomite = Dinomite::new(10, 10, 5);
+        println!("{}", dinomite);
+        println!("{}", dinomite);
+        assert_eq!(
+            dinomite
+                .get_neighbors(&Position(0, 0))
+                .collect::<HashSet<Position>>(),
+            expected
+        );
     }
 }
