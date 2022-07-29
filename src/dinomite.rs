@@ -1,8 +1,18 @@
+use crate::dinomite::PositionResult::{Clear, Dino, DinosInSurrounding, Flagged};
+use itertools::Itertools;
 use rand::Rng;
+use std::cmp::min;
 use std::collections::HashSet;
-use std::fmt::{Display, Formatter};
 use std::fmt::Write as _;
+use std::fmt::{Display, Formatter};
 
+#[derive(Debug, PartialEq)]
+pub enum PositionResult {
+    Clear,                     // 0 dinos nearby
+    DinosInSurrounding(usize), //
+    Dino,
+    Flagged,
+}
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 struct Position(usize, usize);
 
@@ -35,28 +45,165 @@ impl Dinomite {
             game_over: false,
         }
     }
+    pub fn reconfigure(&mut self, height: usize, width: usize, num_dinos: usize) {
+        let tmp = Dinomite::new(height, width, num_dinos);
+        self.dinos = tmp.dinos.clone();
+        self.flags = tmp.flags.clone();
+        self.seen = tmp.seen.clone();
+        self.width = tmp.width;
+        self.height = tmp.height;
+    }
+
+    fn check_position(&mut self, pos: &Position) -> PositionResult {
+        let mut surrounding = 0usize;
+
+        if self.dinos.contains(pos) {
+            self.game_over = true;
+            return Dino;
+        }
+        if self.flags.contains(pos) {
+            return Flagged;
+        }
+        if self.seen.contains(pos) {
+            return Clear;
+        }
+        for n in self.get_neighbors(pos) {
+            if self.dinos.contains(&n) {
+                surrounding += 1;
+            }
+        }
+        match surrounding {
+            0 => {
+                self.seen.insert(pos.clone());
+                for n in self.get_neighbors(pos) {
+                    self.check_position(&n);
+                }
+                Clear
+            }
+            _ => DinosInSurrounding(surrounding),
+        }
+    }
+
+    fn get_neighbors(&self, pos: &Position) -> impl Iterator<Item = Position> {
+        let neighbors = [
+            (pos.0.saturating_sub(1), pos.1),                          //left
+            (pos.0.saturating_sub(1), pos.1.saturating_sub(1)),        // top left
+            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height)),    // bottom left
+            (pos.0, pos.1.saturating_sub(1)),                          // top
+            (pos.0, min(pos.1 + 1, self.height)),                      // bottom
+            (min(pos.0 + 1, self.width), pos.1),                       // right
+            (min(pos.0 + 1, self.width), pos.1.saturating_sub(1)),     // top right
+            (min(pos.0 + 1, self.width), min(pos.1 + 1, self.height)), // bottom right
+        ];
+        neighbors.into_iter().unique().map(|x| Position(x.0, x.1))
+    }
+    fn get_neighboring_dino_count(&self, pos: &Position) -> usize {
+        todo!()
+    }
+    fn toggle_flag(&mut self, pos: &Position) {
+        if self.flags.contains(pos) {
+            self.flags.remove(pos);
+        } else {
+            self.flags.insert(pos.clone());
+        }
+    }
 }
 
 impl Display for Dinomite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut board = String::new();
-        for d in &self.dinos{
-            write!(board, "🦖 at {:>1?} ", d)?;
+        for y in 0..self.height {
+            for x in 0..self.width {
+                if self.dinos.contains(&Position(x, y)) {
+                    write!(board, "🦖")?;
+                } else if self.flags.contains(&Position(x, y)) {
+                    write!(board, " F")?;
+                } else {
+                    write!(board, " _")?;
+                }
+            }
+            write!(board, "\n")?;
         }
-        write!(f,"{}", board)
+
+        write!(f, "{}", board)
     }
 }
 
-
 #[cfg(test)]
-pub mod test{
-    use crate::dinomite::Dinomite;
+pub mod test {
+    use crate::dinomite::PositionResult::DinosInSurrounding;
+    use crate::dinomite::{Dinomite, Position, PositionResult};
+    use std::collections::HashSet;
 
     #[test]
-    fn test_repr(){
-        let expected =5;
+    fn test_repr() {
+        let expected = 5;
         let dinomite = Dinomite::new(10, 10, expected);
         print!("{}", dinomite);
         assert_eq!(dinomite.dinos.len(), expected);
+    }
+    #[test]
+    fn test_reset() {
+        let expected = 10;
+        let mut dinomite = Dinomite::new(10, 10, 5);
+        println!("{}", dinomite);
+        dinomite.reconfigure(20, 20, expected);
+        println!("{}", dinomite);
+        assert_eq!(dinomite.dinos.len(), expected);
+    }
+    #[test]
+    fn test_neighbors() {
+        let expected: HashSet<Position> = HashSet::from([
+            Position(0, 0),
+            Position(0, 1),
+            Position(1, 0),
+            Position(1, 1),
+        ]);
+        let mut dinomite = Dinomite::new(10, 10, 5);
+        println!("{}", dinomite);
+        println!("{}", dinomite);
+        assert_eq!(
+            dinomite
+                .get_neighbors(&Position(0, 0))
+                .collect::<HashSet<Position>>(),
+            expected
+        );
+    }
+
+    #[test]
+    fn test_surrounding() {
+        let expected: PositionResult = DinosInSurrounding(3);
+        let mut dinomite = Dinomite::new(10, 10, 0);
+        dinomite.dinos.insert(Position(0, 0));
+        dinomite.dinos.insert(Position(1, 0));
+        dinomite.dinos.insert(Position(1, 1));
+        let pos = Position(0, 1);
+        println!("{}", dinomite);
+        assert_eq!(dinomite.check_position(&pos), expected);
+    }
+
+    #[test]
+    fn test_toggle_flag() {
+        let expected = 2;
+        let mut dinomite = Dinomite::new(10, 10, 0);
+        dinomite.toggle_flag(&Position(0, 0));
+        dinomite.toggle_flag(&Position(0, 0));
+        dinomite.toggle_flag(&Position(1, 0));
+        dinomite.toggle_flag(&Position(1, 1));
+        println!("{}", dinomite);
+        assert_eq!(dinomite.flags.len(), expected);
+    }
+
+    #[test]
+    fn test_check_pos_clear() {
+        let expected = 96;
+        let mut dinomite = Dinomite::new(9, 9, 0);
+        dinomite.dinos.insert(Position(0, 0));
+
+        println!("{}", dinomite);
+        println!("{:?}", dinomite.seen);
+
+        dinomite.check_position(&Position(5, 5));
+        assert_eq!(dinomite.seen.len(), expected);
     }
 }
