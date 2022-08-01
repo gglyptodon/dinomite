@@ -22,7 +22,7 @@
 </div>
 
 <script type="module">
-    import init, { getState, newGame } from "./pkg/dinomite.js";
+    import init, { getState, newGame, checkPosition, toggleFlag } from "./pkg/dinomite.js";
     async function main() {
         await init();
         render();
@@ -31,16 +31,43 @@
     main();
     function render() {
         let state = getState();
-        console.log(state);
+        //console.log(state);
         let game = document.getElementById("game");
-        game.innerText = state;
-        newGame();
-        // let new_state = getState();
-        // let div = document.createElement("div")
-        // div.append(new_state);
-        // document.body.appendChild(div);
+        game.innerHTML = "";
+        game.style.display = "inline-grid";
+        let board = state.split("\n").map(row => row.trim().split(/\s+/));
+        game.style.gridTemplate = `repeat(${board.length}, auto) / repeat(${board[0].length}, auto)`;
 
-    }
+        for (let y = 0; y < board.length; y++) {
+          for (let x = 0; x < board[y].length; x++) {
+            let element = document.createElement("a");
+                element.href = "#";
+                element.innerText = board[y][x];
+                element.classList.add("field");
+                element.addEventListener("click", evt => {
+                    evt.preventDefault();
+                    checkPosition(x,y);
+                    render();
+                    }
+                );
+
+                element.addEventListener("contextmenu", evt=>{
+                    evt.preventDefault();
+                    toggleFlag(x,y);
+                    render();
+                    }
+                );
+
+                game.appendChild(element);
+            }
+        }
+
+  //  if (isGameOver()){
+  //      let div = document.createElement("div")
+  //          div.append("Game Over");
+   //         document.body.appendChild(div);
+   // }
+}
 </script>
 </body>
 </html>

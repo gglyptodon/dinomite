@@ -14,7 +14,7 @@ pub enum PositionResult {
     Flagged,
 }
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
-struct Position(usize, usize);
+pub(crate) struct Position(pub (crate)usize, pub(crate) usize);
 
 pub struct Dinomite {
     width: usize,
@@ -54,7 +54,7 @@ impl Dinomite {
         self.height = tmp.height;
     }
 
-    fn check_position(&mut self, pos: &Position) -> PositionResult {
+    pub(crate) fn check_position(&mut self, pos: &Position) -> PositionResult {
         let mut surrounding = 0usize;
 
         if self.dinos.contains(pos) {
@@ -86,21 +86,24 @@ impl Dinomite {
 
     fn get_neighbors(&self, pos: &Position) -> impl Iterator<Item = Position> {
         let neighbors = [
-            (pos.0.saturating_sub(1), pos.1),                          //left
-            (pos.0.saturating_sub(1), pos.1.saturating_sub(1)),        // top left
-            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height-1)),    // bottom left
-            (pos.0, pos.1.saturating_sub(1)),                          // top
-            (pos.0, min(pos.1 + 1, self.height-1)),                      // bottom
-            (min(pos.0 + 1, self.width-1), pos.1),                       // right
-            (min(pos.0 + 1, self.width-1), pos.1.saturating_sub(1)),     // top right
-            (min(pos.0 + 1, self.width-1), min(pos.1 + 1, self.height-1)), // bottom right
+            (pos.0.saturating_sub(1), pos.1),                           //left
+            (pos.0.saturating_sub(1), pos.1.saturating_sub(1)),         // top left
+            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height - 1)), // bottom left
+            (pos.0, pos.1.saturating_sub(1)),                           // top
+            (pos.0, min(pos.1 + 1, self.height - 1)),                   // bottom
+            (min(pos.0 + 1, self.width - 1), pos.1),                    // right
+            (min(pos.0 + 1, self.width - 1), pos.1.saturating_sub(1)),  // top right
+            (
+                min(pos.0 + 1, self.width - 1),
+                min(pos.1 + 1, self.height - 1),
+            ), // bottom right
         ];
         neighbors.into_iter().unique().map(|x| Position(x.0, x.1))
     }
     fn get_neighboring_dino_count(&self, pos: &Position) -> usize {
         todo!()
     }
-    fn toggle_flag(&mut self, pos: &Position) {
+    pub(crate) fn toggle_flag(&mut self, pos: &Position) {
         if self.flags.contains(pos) {
             self.flags.remove(pos);
         } else {
@@ -207,7 +210,7 @@ pub mod test {
         println!("{:?}", dinomite.seen);
 
         dinomite.check_position(&Position(4, 4));
-        for s in &dinomite.seen{
+        for s in &dinomite.seen {
             println!("{:?}", s);
         }
 
