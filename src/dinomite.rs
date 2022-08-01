@@ -88,12 +88,12 @@ impl Dinomite {
         let neighbors = [
             (pos.0.saturating_sub(1), pos.1),                          //left
             (pos.0.saturating_sub(1), pos.1.saturating_sub(1)),        // top left
-            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height)),    // bottom left
+            (pos.0.saturating_sub(1), min(pos.1 + 1, self.height-1)),    // bottom left
             (pos.0, pos.1.saturating_sub(1)),                          // top
-            (pos.0, min(pos.1 + 1, self.height)),                      // bottom
-            (min(pos.0 + 1, self.width), pos.1),                       // right
-            (min(pos.0 + 1, self.width), pos.1.saturating_sub(1)),     // top right
-            (min(pos.0 + 1, self.width), min(pos.1 + 1, self.height)), // bottom right
+            (pos.0, min(pos.1 + 1, self.height-1)),                      // bottom
+            (min(pos.0 + 1, self.width-1), pos.1),                       // right
+            (min(pos.0 + 1, self.width-1), pos.1.saturating_sub(1)),     // top right
+            (min(pos.0 + 1, self.width-1), min(pos.1 + 1, self.height-1)), // bottom right
         ];
         neighbors.into_iter().unique().map(|x| Position(x.0, x.1))
     }
@@ -196,14 +196,21 @@ pub mod test {
 
     #[test]
     fn test_check_pos_clear() {
-        let expected = 96;
-        let mut dinomite = Dinomite::new(9, 9, 0);
+        let expected = 21;
+        let mut dinomite = Dinomite::new(5, 5, 0);
+        println!("{}", dinomite);
+        println!("{:?}", dinomite.seen);
+
         dinomite.dinos.insert(Position(0, 0));
 
         println!("{}", dinomite);
         println!("{:?}", dinomite.seen);
 
-        dinomite.check_position(&Position(5, 5));
+        dinomite.check_position(&Position(4, 4));
+        for s in &dinomite.seen{
+            println!("{:?}", s);
+        }
+
         assert_eq!(dinomite.seen.len(), expected);
     }
 }
