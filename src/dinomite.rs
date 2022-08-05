@@ -23,6 +23,7 @@ pub struct Dinomite {
     dinos: HashSet<Position>,
     flags: HashSet<Position>,
     game_over: bool,
+    won:bool,
 }
 
 impl Dinomite {
@@ -43,6 +44,7 @@ impl Dinomite {
             },
             flags: HashSet::new(),
             game_over: false,
+            won:false
         }
     }
     pub fn reconfigure(&mut self, height: usize, width: usize, num_dinos: usize) {
@@ -58,7 +60,9 @@ impl Dinomite {
         let mut surrounding = 0usize;
 
         if self.dinos.contains(pos) {
+            self.seen.insert(pos.clone());
             self.game_over = true;
+
             return Dino;
         }
         if self.flags.contains(pos) {
@@ -66,6 +70,9 @@ impl Dinomite {
         }
         if self.seen.contains(pos) {
             return Clear;
+        }
+        if self.seen.len() +self.flags.len() == self.width* self.height - self.dinos.len() {
+            self.won = true;
         }
         for n in self.get_neighbors(pos) {
             if self.dinos.contains(&n) {
@@ -75,7 +82,6 @@ impl Dinomite {
         match surrounding {
             0 => {
                 self.seen.insert(pos.clone());
-
                 for n in self.get_neighbors(pos) {
                     self.check_position(&n);
                 }
@@ -106,17 +112,20 @@ impl Dinomite {
     }
     fn get_neighboring_dino_count(&self, pos: &Position) -> usize {
         let mut result = 0;
-        for n in self.get_neighbors(pos){
-            if self.dinos.contains(&n){
-                result+=1;
+        for n in self.get_neighbors(pos) {
+            if self.dinos.contains(&n) {
+                result += 1;
             }
         }
         result
     }
     pub(crate) fn toggle_flag(&mut self, pos: &Position) {
-        if self.flags.contains(pos) {
+        if self.seen.contains(pos){return}
+        if self.flags.contains(pos){
             self.flags.remove(pos);
         } else {
+            if self.flags.len()==self.dinos.len(){return}
+
             self.flags.insert(pos.clone());
         }
     }
@@ -127,16 +136,24 @@ impl Display for Dinomite {
         let mut board = String::new();
         for y in 0..self.height {
             for x in 0..self.width {
-                if self.dinos.contains(&Position(x, y)) {
+                if self.dinos.contains(&Position(x, y)) && (self.seen.contains(&Position(x,y)) || self.game_over) {
                     write!(board, " 🦖 ")?;
                 } else if self.flags.contains(&Position(x, y)) {
                     write!(board, " X ")?;
-                } else if self.seen.contains(&Position(x, y)) {
-                    write!(
-                        board,
-                        " {} ",
-                        self.get_neighboring_dino_count(&Position(x, y))
-                    )?;
+                } else if self.won {
+                   write!(board, " 🙂 ")?;
+                }
+
+                else if self.seen.contains(&Position(x, y)) {
+                    let count = self.get_neighboring_dino_count(&Position(x, y));
+                    match count {
+                        0 => {
+                            write!(board, " . ")?;
+                        }
+                        _ => {
+                            write!(board, " {} ", count)?;
+                        }
+                    }
                 } else {
                     write!(board, " _ ")?;
                 }
