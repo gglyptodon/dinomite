@@ -14,7 +14,7 @@ pub enum PositionResult {
     Flagged,
 }
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
-pub(crate) struct Position(pub (crate)usize, pub(crate) usize);
+pub(crate) struct Position(pub(crate) usize, pub(crate) usize);
 
 pub struct Dinomite {
     width: usize,
@@ -75,12 +75,16 @@ impl Dinomite {
         match surrounding {
             0 => {
                 self.seen.insert(pos.clone());
+
                 for n in self.get_neighbors(pos) {
                     self.check_position(&n);
                 }
                 Clear
             }
-            _ => DinosInSurrounding(surrounding),
+            _ => {
+                self.seen.insert(pos.clone());
+                DinosInSurrounding(surrounding)
+            }
         }
     }
 
@@ -101,7 +105,13 @@ impl Dinomite {
         neighbors.into_iter().unique().map(|x| Position(x.0, x.1))
     }
     fn get_neighboring_dino_count(&self, pos: &Position) -> usize {
-        todo!()
+        let mut result = 0;
+        for n in self.get_neighbors(pos){
+            if self.dinos.contains(&n){
+                result+=1;
+            }
+        }
+        result
     }
     pub(crate) fn toggle_flag(&mut self, pos: &Position) {
         if self.flags.contains(pos) {
@@ -118,11 +128,17 @@ impl Display for Dinomite {
         for y in 0..self.height {
             for x in 0..self.width {
                 if self.dinos.contains(&Position(x, y)) {
-                    write!(board, "🦖")?;
+                    write!(board, " 🦖 ")?;
                 } else if self.flags.contains(&Position(x, y)) {
-                    write!(board, " F")?;
+                    write!(board, " X ")?;
+                } else if self.seen.contains(&Position(x, y)) {
+                    write!(
+                        board,
+                        " {} ",
+                        self.get_neighboring_dino_count(&Position(x, y))
+                    )?;
                 } else {
-                    write!(board, " _")?;
+                    write!(board, " _ ")?;
                 }
             }
             write!(board, "\n")?;
@@ -213,6 +229,28 @@ pub mod test {
         for s in &dinomite.seen {
             println!("{:?}", s);
         }
+
+        assert_eq!(dinomite.seen.len(), expected);
+    }
+
+    #[test]
+    fn test_check_get_dino_count() {
+        let expected = 2;
+        let mut dinomite = Dinomite::new(5, 5, 0);
+        println!("{}", dinomite);
+        println!("{:?}", dinomite.seen);
+
+        dinomite.dinos.insert(Position(0, 0));
+        dinomite.dinos.insert(Position(0, 1));
+
+        println!("{}", dinomite);
+        println!("{:?}", dinomite.seen);
+
+        dinomite.check_position(&Position(1, 1));
+        //for s in &dinomite.seen {
+        //    println!("{:?}", s);
+        //}
+        println!("{}", dinomite);
 
         assert_eq!(dinomite.seen.len(), expected);
     }
