@@ -1,4 +1,4 @@
-use crate::dinomite::PositionResult::{Clear, Dino, DinosInSurrounding, Flagged};
+use crate::dinomite::PositionResult::{Clear, Dino, DinosInSurrounding, Flagged, Over};
 use itertools::Itertools;
 use rand::Rng;
 use std::cmp::min;
@@ -8,6 +8,7 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Debug, PartialEq)]
 pub enum PositionResult {
+    Over,
     Clear,                     // 0 dinos nearby
     DinosInSurrounding(usize), //
     Dino,
@@ -57,6 +58,9 @@ impl Dinomite {
     }
 
     pub(crate) fn check_position(&mut self, pos: &Position) -> PositionResult {
+        if self.won||self.game_over{
+            return Over
+        }
         let mut surrounding = 0usize;
 
         if self.dinos.contains(pos) {
@@ -120,6 +124,9 @@ impl Dinomite {
         result
     }
     pub(crate) fn toggle_flag(&mut self, pos: &Position) {
+        if self.game_over || self.won{
+            return;
+        }
         if self.seen.contains(pos){return}
         if self.flags.contains(pos){
             self.flags.remove(pos);
@@ -139,7 +146,7 @@ impl Display for Dinomite {
                 if self.dinos.contains(&Position(x, y)) && (self.seen.contains(&Position(x,y)) || self.game_over) {
                     write!(board, " 🦖 ")?;
                 } else if self.flags.contains(&Position(x, y)) {
-                    write!(board, " X ")?;
+                    write!(board, " ❗ ")?;
                 } else if self.won {
                    write!(board, " 🙂 ")?;
                 }
@@ -148,14 +155,14 @@ impl Display for Dinomite {
                     let count = self.get_neighboring_dino_count(&Position(x, y));
                     match count {
                         0 => {
-                            write!(board, " . ")?;
+                            write!(board, " ⬜ ")?;
                         }
                         _ => {
                             write!(board, " {} ", count)?;
                         }
                     }
                 } else {
-                    write!(board, " _ ")?;
+                    write!(board, " 🌿 ")?;
                 }
             }
             write!(board, "\n")?;
