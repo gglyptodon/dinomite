@@ -24,7 +24,7 @@ pub struct Dinomite {
     dinos: HashSet<Position>,
     flags: HashSet<Position>,
     game_over: bool,
-    won:bool,
+    won: bool,
 }
 
 impl Dinomite {
@@ -45,7 +45,7 @@ impl Dinomite {
             },
             flags: HashSet::new(),
             game_over: false,
-            won:false
+            won: false,
         }
     }
     pub fn reconfigure(&mut self, height: usize, width: usize, num_dinos: usize) {
@@ -58,8 +58,8 @@ impl Dinomite {
     }
 
     pub(crate) fn check_position(&mut self, pos: &Position) -> PositionResult {
-        if self.won||self.game_over{
-            return Over
+        if self.won || self.game_over {
+            return Over;
         }
         let mut surrounding = 0usize;
 
@@ -75,7 +75,7 @@ impl Dinomite {
         if self.seen.contains(pos) {
             return Clear;
         }
-        if self.seen.len() +self.flags.len() == self.width* self.height - self.dinos.len() {
+        if self.seen.len() + self.flags.len() == self.width * self.height - self.dinos.len() {
             self.won = true;
         }
         for n in self.get_neighbors(pos) {
@@ -124,14 +124,18 @@ impl Dinomite {
         result
     }
     pub(crate) fn toggle_flag(&mut self, pos: &Position) {
-        if self.game_over || self.won{
+        if self.game_over || self.won {
             return;
         }
-        if self.seen.contains(pos){return}
-        if self.flags.contains(pos){
+        if self.seen.contains(pos) {
+            return;
+        }
+        if self.flags.contains(pos) {
             self.flags.remove(pos);
         } else {
-            if self.flags.len()==self.dinos.len(){return}
+            if self.flags.len() == self.dinos.len() {
+                return;
+            }
 
             self.flags.insert(pos.clone());
         }
@@ -143,15 +147,20 @@ impl Display for Dinomite {
         let mut board = String::new();
         for y in 0..self.height {
             for x in 0..self.width {
-                if self.dinos.contains(&Position(x, y)) && (self.seen.contains(&Position(x,y)) || self.game_over) {
+                if self.dinos.contains(&Position(x, y))
+                    && (self.seen.contains(&Position(x, y)) || self.game_over)
+                {
                     write!(board, " 🦖 ")?;
                 } else if self.flags.contains(&Position(x, y)) {
                     write!(board, " ❗ ")?;
                 } else if self.won {
-                   write!(board, " 🙂 ")?;
-                }
-
-                else if self.seen.contains(&Position(x, y)) {
+                    if self.dinos.contains(&Position(x, y)) && !self.flags.contains(&Position(x, y))
+                    {
+                        write!(board, " 🦖️ ")?
+                    } else {
+                        write!(board, " ☄️ ")?;
+                    }
+                } else if self.seen.contains(&Position(x, y)) {
                     let count = self.get_neighboring_dino_count(&Position(x, y));
                     match count {
                         0 => {
@@ -229,17 +238,24 @@ pub mod test {
     fn test_toggle_flag() {
         let expected = 2;
         let mut dinomite = Dinomite::new(10, 10, 0);
+        dinomite.dinos.insert(Position(9, 9));
+        dinomite.dinos.insert(Position(8, 8));
+
         dinomite.toggle_flag(&Position(0, 0));
+        dinomite.check_position(&Position(0, 0));
+
         dinomite.toggle_flag(&Position(0, 0));
         dinomite.toggle_flag(&Position(1, 0));
         dinomite.toggle_flag(&Position(1, 1));
         println!("{}", dinomite);
+        println!("{:?}", dinomite.flags);
+
         assert_eq!(dinomite.flags.len(), expected);
     }
 
     #[test]
     fn test_check_pos_clear() {
-        let expected = 21;
+        let expected = 24;
         let mut dinomite = Dinomite::new(5, 5, 0);
         println!("{}", dinomite);
         println!("{:?}", dinomite.seen);
@@ -253,29 +269,25 @@ pub mod test {
         for s in &dinomite.seen {
             println!("{:?}", s);
         }
+        println!("{}", dinomite);
 
         assert_eq!(dinomite.seen.len(), expected);
     }
 
     #[test]
     fn test_check_get_dino_count() {
+        let pos = Position(1, 1);
         let expected = 2;
         let mut dinomite = Dinomite::new(5, 5, 0);
-        println!("{}", dinomite);
-        println!("{:?}", dinomite.seen);
-
         dinomite.dinos.insert(Position(0, 0));
         dinomite.dinos.insert(Position(0, 1));
 
         println!("{}", dinomite);
+
+        dinomite.check_position(&pos);
+        println!("{}", dinomite);
         println!("{:?}", dinomite.seen);
 
-        dinomite.check_position(&Position(1, 1));
-        //for s in &dinomite.seen {
-        //    println!("{:?}", s);
-        //}
-        println!("{}", dinomite);
-
-        assert_eq!(dinomite.seen.len(), expected);
+        assert_eq!(dinomite.get_neighboring_dino_count(&pos), expected);
     }
 }
