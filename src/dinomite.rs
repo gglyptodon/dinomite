@@ -148,19 +148,20 @@ impl Display for Dinomite {
         for y in 0..self.height {
             for x in 0..self.width {
                 if self.dinos.contains(&Position(x, y))
-                    && (self.seen.contains(&Position(x, y)) || self.game_over && !self.dinos.contains(&Position(x,y)))
+                    && (self.seen.contains(&Position(x, y))
+                        || self.game_over && !self.dinos.contains(&Position(x, y)))
                 {
                     write!(board, " 🦖 ")?;
                 } else if self.flags.contains(&Position(x, y)) {
                     if self.game_over {
-                        if !self.dinos.contains(&Position(x, y)){
-                       write!(board, " ❌️ ")?;
-                    }else {
-                           write!(board, " ✅️ ")?;
+                        if !self.dinos.contains(&Position(x, y)) {
+                            write!(board, " ❌️ ")?;
+                        } else {
+                            write!(board, " ✅️ ")?;
                         }
+                    } else {
+                        write!(board, " ❗ ")?;
                     }
-                    else{
-                    write!(board, " ❗ ")?;}
                 } else if self.won {
                     if self.dinos.contains(&Position(x, y)) && !self.flags.contains(&Position(x, y))
                     {
