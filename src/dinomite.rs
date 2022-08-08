@@ -78,6 +78,7 @@ impl Dinomite {
         if self.seen.len() == self.width * self.height - self.dinos.len() - 1
             && !self.dinos.contains(pos)
         {
+
             self.won = true;
             self.game_over = true;
         }
@@ -169,7 +170,7 @@ impl Display for Dinomite {
             for x in 0..self.width {
                 let pos = Position(x, y);
                 match (self.game_over, self.won) {
-                    // won
+                // won
                     (true, true) => {
                         if self.flags.contains(&pos) {
                             if self.dinos.contains(&pos) {
@@ -244,6 +245,12 @@ impl Display for Dinomite {
         write!(f, "{}", board)
     }
 }
+
+                
+                
+                
+                
+                    
 
 #[cfg(test)]
 pub mod test {
@@ -384,6 +391,7 @@ pub mod test {
         dinomite.check_position(&Position(2, 0));
         dinomite.check_position(&Position(2, 1));
         dinomite.check_position(&Position(2, 2));
+
 
         println!("{}", dinomite);
         println!("{:?}", dinomite.seen);
