@@ -15,14 +15,25 @@
             height: 1.5rem;
             width: 1.5rem;
         }
+        .container {
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
+
+<div class="container">
 <div id="game">
+</div>
+</div>
+
+<div class="container">
+<div id="result"> </div>
 </div>
 
 <script type="module">
-    import init, { getState, newGame, checkPosition,checkNeighbors, toggleFlag } from "./pkg/dinomite.js";
+    import init, { getState, newGame, checkPosition,checkNeighbors, isGameOver, isWon, toggleFlag } from "./pkg/dinomite.js";
     async function main() {
         await init();
         render();
@@ -30,6 +41,17 @@
     }
     main();
     function render() {
+        if (isWon()){
+            let div = document.getElementById("result");
+            div.innerHTML = "You Win 😎";
+        }
+        else{
+            if (isGameOver()){
+                console.log("lost");
+                let div = document.getElementById("result");
+                div.innerHTML = "Game Over 💀 ";
+            }
+        }
         let state = getState();
         console.log(state);
         let game = document.getElementById("game");
@@ -74,11 +96,7 @@
             }
         }
 
-  //  if (isGameOver()){
-  //      let div = document.createElement("div")
-  //          div.append("Game Over");
-   //         document.body.appendChild(div);
-   // }
+
 }
 </script>
 </body>

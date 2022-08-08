@@ -162,6 +162,14 @@ impl Dinomite {
             self.flags.insert(pos.clone());
         }
     }
+
+    pub(crate) fn is_game_over(&self)-> bool{
+        self.game_over
+    }
+      pub(crate) fn is_won(&self)->bool{
+        self.won
+    }
+
 }
 impl Display for Dinomite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -246,11 +254,6 @@ impl Display for Dinomite {
     }
 }
 
-                
-                
-                
-                
-                    
 
 #[cfg(test)]
 pub mod test {
