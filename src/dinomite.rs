@@ -199,7 +199,7 @@ impl Display for Dinomite {
                                 }
                             }
                         } else {
-                            write!(board, " 🌿 ")?;
+                            write!(board, " 🌺 ")?;
                         }
                     }
                     // lost
@@ -225,7 +225,7 @@ impl Display for Dinomite {
                                 }
                             }
                         } else {
-                            write!(board, " 🌿 ")?;
+                            write!(board, " 🍂 ")?;
                         }
                     }
                     // game is still running
