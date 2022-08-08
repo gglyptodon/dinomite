@@ -5,6 +5,7 @@ use std::cmp::min;
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::fmt::{Display, Formatter};
+use crate::wasm_interface::{check_neighbors, check_position};
 
 #[derive(Debug, PartialEq)]
 pub enum PositionResult {
@@ -64,7 +65,6 @@ impl Dinomite {
         let mut surrounding = 0usize;
 
         if self.dinos.contains(pos) {
-           // self.seen.insert(pos.clone());
             self.game_over = true;
 
             return Dino;
@@ -75,10 +75,9 @@ impl Dinomite {
         if self.seen.contains(pos) {
             return Clear;
         }
-        //???
-        println!("{} == {} * {} - {} = {}",self.seen.len(), self.width, self.height, self.dinos.len(), self.width*self.height-self.dinos.len() );
-        if self.seen.len() ==self.width * self.height - self.dinos.len()-1 && !self.dinos.contains(pos){
-        //if self.seen.len() + self.flags.len() == self.width * self.height - self.dinos.len() {
+        if self.seen.len() == self.width * self.height - self.dinos.len() - 1
+            && !self.dinos.contains(pos)
+        {
             self.won = true;
             self.game_over = true;
         }
@@ -101,6 +100,24 @@ impl Dinomite {
             }
         }
     }
+
+        pub(crate) fn check_neighbors(&mut self, pos: &Position) {
+            let neighbors = self.get_neighbors(pos).collect::<Vec<Position>>();
+            let mut num_flags_set = 0;
+            for n in &neighbors{
+                if self.flags.contains(&n){
+                    num_flags_set +=1;
+                }
+            }
+            if self.get_neighboring_dino_count(pos) == num_flags_set{
+                for n in &neighbors{
+                    if !self.flags.contains(&n){
+                    self.check_position(&n);}
+                }
+            }
+
+        }
+
 
     fn get_neighbors(&self, pos: &Position) -> impl Iterator<Item = Position> {
         let neighbors = [
@@ -172,8 +189,7 @@ impl Display for Dinomite {
                                     write!(board, " {} ", count)?;
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             write!(board, " 🌿 ")?;
                         }
                     }
@@ -199,8 +215,7 @@ impl Display for Dinomite {
                                     write!(board, " {} ", count)?;
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             write!(board, " 🌿 ")?;
                         }
                     }
@@ -223,7 +238,6 @@ impl Display for Dinomite {
                         }
                     }
                 }
-
             }
             write!(board, "\n")?;
         }
@@ -231,54 +245,6 @@ impl Display for Dinomite {
     }
 }
 
-// opened this dino field, or game is lost
-/* if self.dinos.contains(&pos)
-                    && (self.seen.contains(&pos)
-                        || self.game_over && self.dinos.contains(&Position(x, y)))
-                {
-                    write!(board, " 🦖 ")?;
-                } else if self.flags.contains(&Position(x, y)) {
-                    if self.game_over {
-                        if !self.dinos.contains(&Position(x, y)) {
-                            write!(board, " ❌️ ")?;
-                        } else {
-                            write!(board, " ✅️ ")?;
-                        }
-                    } else {
-                        write!(board, " ❗ ")?;
-                    }
-                } else if self.won {
-                    if self.dinos.contains(&Position(x, y)) && !self.flags.contains(&Position(x, y))
-                    {
-                        write!(board, " 🦖️ ")?
-                    } else {
-                        if self.flags.contains(&Position(x, y)) {
-                            write!(board, " ✅️ ")?;
-                        } else {
-                            write!(board, " ☄️ ")?;
-                        }
-                    }
-                } else if self.seen.contains(&Position(x, y)) {
-                    let count = self.get_neighboring_dino_count(&Position(x, y));
-                    match count {
-                        0 => {
-                            write!(board, " ⬜ ")?;
-                        }
-                        _ => {
-                            write!(board, " {} ", count)?;
-                        }
-                    }
-                } else {
-                    write!(board, " 🌿 ")?;
-                }
-            }
-            write!(board, "\n")?;
-        }
-
-        write!(f, "{}", board)
-    }
-}
-*/
 #[cfg(test)]
 pub mod test {
     use crate::dinomite::PositionResult::DinosInSurrounding;
@@ -408,16 +374,16 @@ pub mod test {
         dinomite.dinos.insert(pos.clone());
         dinomite.flags.insert(pos.clone());
         println!("{}", dinomite);
-        dinomite.check_position(&Position(0,0));
-        dinomite.check_position(&Position(0,1));
-        dinomite.check_position(&Position(0,2));
+        dinomite.check_position(&Position(0, 0));
+        dinomite.check_position(&Position(0, 1));
+        dinomite.check_position(&Position(0, 2));
 
-        dinomite.check_position(&Position(1,0));
-        dinomite.check_position(&Position(1,2));
+        dinomite.check_position(&Position(1, 0));
+        dinomite.check_position(&Position(1, 2));
 
-        dinomite.check_position(&Position(2,0));
-        dinomite.check_position(&Position(2,1));
-        dinomite.check_position(&Position(2,2));
+        dinomite.check_position(&Position(2, 0));
+        dinomite.check_position(&Position(2, 1));
+        dinomite.check_position(&Position(2, 2));
 
         println!("{}", dinomite);
         println!("{:?}", dinomite.seen);

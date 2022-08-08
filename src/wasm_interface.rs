@@ -23,3 +23,7 @@ pub fn toggle_flag(x: usize, y: usize) {
 pub fn check_position(x: usize, y: usize) {
     DINOMITE.with(|dm| dm.borrow_mut().check_position(&Position(x, y)));
 }
+#[wasm_bindgen(js_name=checkNeighbors)]
+pub fn check_neighbors(x: usize, y: usize) {
+    DINOMITE.with(|dm| dm.borrow_mut().check_neighbors(&Position(x, y)));
+}

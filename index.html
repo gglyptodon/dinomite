@@ -22,7 +22,7 @@
 </div>
 
 <script type="module">
-    import init, { getState, newGame, checkPosition, toggleFlag } from "./pkg/dinomite.js";
+    import init, { getState, newGame, checkPosition,checkNeighbors, toggleFlag } from "./pkg/dinomite.js";
     async function main() {
         await init();
         render();
@@ -59,6 +59,16 @@
                     render();
                     }
                 );
+
+                element.addEventListener("dblclick", evt => {
+                    evt.preventDefault();
+                    checkNeighbors(x,y);
+                    console.log("check neighbors, x,y", x,y);
+                    render();
+                    }
+                );
+
+
 
                 game.appendChild(element);
             }
