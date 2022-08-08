@@ -27,3 +27,13 @@ pub fn check_position(x: usize, y: usize) {
 pub fn check_neighbors(x: usize, y: usize) {
     DINOMITE.with(|dm| dm.borrow_mut().check_neighbors(&Position(x, y)));
 }
+
+#[wasm_bindgen(js_name=isGameOver)]
+pub fn is_game_over()->bool {
+    DINOMITE.with(|dm| dm.borrow().is_game_over())
+}
+
+#[wasm_bindgen(js_name=isWon)]
+pub fn is_won()->bool {
+    DINOMITE.with(|dm| dm.borrow().is_won())
+}
