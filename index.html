@@ -7,17 +7,29 @@
         html {
             font-size: 200%;
             font-family: monospace;
+            background-color: #2F154E;
+            color: #0EAF2E;
         }
-
+        a {
+            color: white;
+        }
         .field {
             text-decoration: none;
             text-align: center;
             height: 1.5rem;
             width: 1.5rem;
+            margin: 0.1rem;
         }
         .container {
             display: flex;
             justify-content: center;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+
+        }
+        #game{
+          box-shadow: 5px 5px 10px 1px #000;
+
         }
     </style>
 </head>
@@ -61,7 +73,8 @@
         console.log(board);
         game.style.gridTemplate = `repeat(${board.length}, auto) / repeat(${board[0].length}, auto)`;
 
-        for (let y = 0; y < board.length; y++) {
+
+        for (let y = 0; y < board.length-1; y++) {
           for (let x = 0; x < board[y].length; x++) {
             let element = document.createElement("a");
                 element.href = "#";
