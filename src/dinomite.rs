@@ -64,7 +64,7 @@ impl Dinomite {
         let mut surrounding = 0usize;
 
         if self.dinos.contains(pos) {
-            self.seen.insert(pos.clone());
+           // self.seen.insert(pos.clone());
             self.game_over = true;
 
             return Dino;
@@ -75,7 +75,10 @@ impl Dinomite {
         if self.seen.contains(pos) {
             return Clear;
         }
-        if self.seen.len() + self.flags.len() == self.width * self.height - self.dinos.len() {
+        //???
+        println!("{} == {} * {} - {} = {}",self.seen.len(), self.width, self.height, self.dinos.len(), self.width*self.height-self.dinos.len() );
+        if self.seen.len() ==self.width * self.height - self.dinos.len()-1 && !self.dinos.contains(pos){
+        //if self.seen.len() + self.flags.len() == self.width * self.height - self.dinos.len() {
             self.won = true;
             self.game_over = true;
         }
@@ -169,6 +172,9 @@ impl Display for Dinomite {
                                     write!(board, " {} ", count)?;
                                 }
                             }
+                        }
+                        else {
+                            write!(board, " 🌿 ")?;
                         }
                     }
                     // lost
@@ -381,5 +387,42 @@ pub mod test {
         println!("{:?}", dinomite.seen);
 
         assert_eq!(dinomite.get_neighboring_dino_count(&pos), expected);
+    }
+    #[test]
+    fn test_check_loose() {
+        let pos = Position(1, 1);
+        let mut dinomite = Dinomite::new(3, 3, 0);
+        dinomite.dinos.insert(pos.clone());
+        println!("{}", dinomite);
+        dinomite.check_position(&pos);
+        println!("{}", dinomite);
+        println!("{:?}", dinomite.seen);
+
+        assert_eq!(dinomite.won, false);
+        assert_eq!(dinomite.game_over, true);
+    }
+    #[test]
+    fn test_check_win() {
+        let pos = Position(1, 1);
+        let mut dinomite = Dinomite::new(3, 3, 0);
+        dinomite.dinos.insert(pos.clone());
+        dinomite.flags.insert(pos.clone());
+        println!("{}", dinomite);
+        dinomite.check_position(&Position(0,0));
+        dinomite.check_position(&Position(0,1));
+        dinomite.check_position(&Position(0,2));
+
+        dinomite.check_position(&Position(1,0));
+        dinomite.check_position(&Position(1,2));
+
+        dinomite.check_position(&Position(2,0));
+        dinomite.check_position(&Position(2,1));
+        dinomite.check_position(&Position(2,2));
+
+        println!("{}", dinomite);
+        println!("{:?}", dinomite.seen);
+
+        assert_eq!(dinomite.won, true);
+        assert_eq!(dinomite.game_over, true);
     }
 }
