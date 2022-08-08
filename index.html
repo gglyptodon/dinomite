@@ -27,6 +27,9 @@
             margin-top: 1rem;
 
         }
+        #configure{
+           font-size: 100%;
+        }
         #game{
           box-shadow: 5px 5px 10px 1px #000;
 
@@ -34,7 +37,25 @@
     </style>
 </head>
 <body>
-
+<div class="container">
+<div id="configure">
+    <div>
+    <label for="width">Width:</label>
+<input type="range" id="width" name="w" min="5" max="30" step="1" value="10">
+    </div>
+    <div>
+   <label for="height">Height:</label>
+<input type="range" id="height" name="h" min="5" max="30" step="1" value="10">
+    </div>
+    <div>
+    <label for="dinos"> # Dinos:</label>
+<input type="number" id="dinos" name="h" min="5" max="800" step="1" value="10">
+    </div>
+    <div>
+    <button id="new">New Game</button>
+    </div>
+</div>
+</div>
 <div class="container">
 <div id="game">
 </div>
@@ -63,14 +84,18 @@
                 let div = document.getElementById("result");
                 div.innerHTML = "Game Over 💀 ";
             }
+            else{
+            let div = document.getElementById("result");
+                div.innerHTML = "";
+            }
         }
         let state = getState();
-        console.log(state);
+        //console.log(state);
         let game = document.getElementById("game");
         game.innerHTML = "";
         game.style.display = "inline-grid";
         let board = state.split("\n").map(row => row.trim().split(/\s+/));
-        console.log(board);
+        //console.log(board);
         game.style.gridTemplate = `repeat(${board.length}, auto) / repeat(${board[0].length}, auto)`;
 
 
@@ -83,7 +108,7 @@
                 element.addEventListener("click", evt => {
                     evt.preventDefault();
                     checkPosition(x,y);
-                    console.log(x,y);
+                    //console.log(x,y);
                     render();
                     }
                 );
@@ -98,19 +123,35 @@
                 element.addEventListener("dblclick", evt => {
                     evt.preventDefault();
                     checkNeighbors(x,y);
-                    console.log("check neighbors, x,y", x,y);
+                    //console.log("check neighbors, x,y", x,y);
                     render();
                     }
                 );
-
-
 
                 game.appendChild(element);
             }
         }
 
+    }
 
-}
+
+    let newGameButton = document.getElementById("new");
+
+       newGameButton.addEventListener("click", evt => {
+       let newWidth = document.getElementById("width").value;
+        console.log(newWidth);
+
+        let newHeight = document.getElementById("height").value;
+        let newNumDinos = document.getElementById("dinos").value;
+                    evt.preventDefault();
+                    //new game
+                    newGame(newHeight, newWidth, newNumDinos);
+                    //
+                    console.log("new game", newHeight, newWidth, newNumDinos);
+                    render();
+                    }
+                );
+
 </script>
 </body>
 </html>

@@ -50,12 +50,18 @@ impl Dinomite {
         }
     }
     pub fn reconfigure(&mut self, height: usize, width: usize, num_dinos: usize) {
-        let tmp = Dinomite::new(height, width, num_dinos);
+        let mut tmp = Dinomite::new(height, width, height*width-1);
+
+        if num_dinos < height*width{
+            tmp = Dinomite::new(height, width, num_dinos);
+        }
         self.dinos = tmp.dinos.clone();
         self.flags = tmp.flags.clone();
         self.seen = tmp.seen.clone();
         self.width = tmp.width;
         self.height = tmp.height;
+        self.won = tmp.won;
+        self.game_over =tmp.game_over;
     }
 
     pub(crate) fn check_position(&mut self, pos: &Position) -> PositionResult {
