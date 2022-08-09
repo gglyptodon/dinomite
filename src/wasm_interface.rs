@@ -11,7 +11,11 @@ pub fn get_state() -> String {
     DINOMITE.with(|dm| dm.borrow().to_string())
 }
 #[wasm_bindgen(js_name=newGame)]
-pub fn new_game() {
+pub fn new_game(width: usize, height: usize, num_dinos: usize) {
+    DINOMITE.with(|dm| dm.borrow_mut().reconfigure(height, width, num_dinos))
+}
+#[wasm_bindgen(js_name=newGameDefault)]
+pub fn new_game_default() {
     DINOMITE.with(|dm| dm.borrow_mut().reconfigure(10, 10, 10))
 }
 
