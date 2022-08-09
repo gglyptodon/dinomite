@@ -20,3 +20,25 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+      
+  wasm:
+    name: Generate wasm output
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo install -f wasm-pack
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --target wasm32-unknown-unknown
+      - run: wasm-pack build --target web
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages # The branch the action should deploy to.
