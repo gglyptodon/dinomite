@@ -1,0 +1,12 @@
+{
+  "name": "dinomite",
+  "version": "0.1.0",
+  "files": [
+    "dinomite_bg.wasm",
+    "dinomite.js",
+    "dinomite.d.ts"
+  ],
+  "module": "dinomite.js",
+  "types": "dinomite.d.ts",
+  "sideEffects": false
+}
