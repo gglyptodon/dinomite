@@ -1,11 +1,11 @@
 use crate::dinomite::PositionResult::{Clear, Dino, DinosInSurrounding, Flagged, Over};
-use crate::wasm_interface::{check_neighbors, check_position};
 use itertools::Itertools;
 use rand::Rng;
 use std::cmp::min;
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::fmt::{Display, Formatter};
+use crate::wasm_interface::{check_neighbors, check_position};
 
 #[derive(Debug, PartialEq)]
 pub enum PositionResult {
@@ -50,9 +50,9 @@ impl Dinomite {
         }
     }
     pub fn reconfigure(&mut self, height: usize, width: usize, num_dinos: usize) {
-        let mut tmp = Dinomite::new(height, width, height * width - 1);
+        let mut tmp = Dinomite::new(height, width, height*width-1);
 
-        if num_dinos < height * width {
+        if num_dinos < height*width{
             tmp = Dinomite::new(height, width, num_dinos);
         }
         self.dinos = tmp.dinos.clone();
@@ -61,15 +61,12 @@ impl Dinomite {
         self.width = tmp.width;
         self.height = tmp.height;
         self.won = tmp.won;
-        self.game_over = tmp.game_over;
+        self.game_over =tmp.game_over;
     }
 
     pub(crate) fn check_position(&mut self, pos: &Position) -> PositionResult {
         if self.won || self.game_over {
             return Over;
-        }
-        if self.flags.contains(&pos){
-            return Flagged;
         }
         let mut surrounding = 0usize;
 
@@ -87,6 +84,7 @@ impl Dinomite {
         if self.seen.len() == self.width * self.height - self.dinos.len() - 1
             && !self.dinos.contains(pos)
         {
+
             self.won = true;
             self.game_over = true;
         }
@@ -110,25 +108,23 @@ impl Dinomite {
         }
     }
 
-    pub(crate) fn check_neighbors(&mut self, pos: &Position) {
-        if self.flags.contains(&pos) {
-            return;
-        }
-        let neighbors = self.get_neighbors(pos).collect::<Vec<Position>>();
-        let mut num_flags_set = 0;
-        for n in &neighbors {
-            if self.flags.contains(&n) {
-                num_flags_set += 1;
-            }
-        }
-        if self.get_neighboring_dino_count(pos) == num_flags_set {
-            for n in &neighbors {
-                if !self.flags.contains(&n) {
-                    self.check_position(&n);
+        pub(crate) fn check_neighbors(&mut self, pos: &Position) {
+            let neighbors = self.get_neighbors(pos).collect::<Vec<Position>>();
+            let mut num_flags_set = 0;
+            for n in &neighbors{
+                if self.flags.contains(&n){
+                    num_flags_set +=1;
                 }
             }
+            if self.get_neighboring_dino_count(pos) == num_flags_set{
+                for n in &neighbors{
+                    if !self.flags.contains(&n){
+                    self.check_position(&n);}
+                }
+            }
+
         }
-    }
+
 
     fn get_neighbors(&self, pos: &Position) -> impl Iterator<Item = Position> {
         let neighbors = [
@@ -173,12 +169,13 @@ impl Dinomite {
         }
     }
 
-    pub(crate) fn is_game_over(&self) -> bool {
+    pub(crate) fn is_game_over(&self)-> bool{
         self.game_over
     }
-    pub(crate) fn is_won(&self) -> bool {
+      pub(crate) fn is_won(&self)->bool{
         self.won
     }
+
 }
 impl Display for Dinomite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -187,7 +184,7 @@ impl Display for Dinomite {
             for x in 0..self.width {
                 let pos = Position(x, y);
                 match (self.game_over, self.won) {
-                    // won
+                // won
                     (true, true) => {
                         if self.flags.contains(&pos) {
                             if self.dinos.contains(&pos) {
@@ -262,6 +259,7 @@ impl Display for Dinomite {
         write!(f, "{}", board)
     }
 }
+
 
 #[cfg(test)]
 pub mod test {
@@ -403,26 +401,11 @@ pub mod test {
         dinomite.check_position(&Position(2, 1));
         dinomite.check_position(&Position(2, 2));
 
+
         println!("{}", dinomite);
         println!("{:?}", dinomite.seen);
 
         assert_eq!(dinomite.won, true);
         assert_eq!(dinomite.game_over, true);
-    }
-    #[test]
-    fn test_check_flag_click_protection() {
-        let flag = Position(0, 0);
-        let dino = Position(0, 0);
-        let mut dinomite = Dinomite::new(5, 5, 0);
-        dinomite.dinos.insert(dino.clone());
-        dinomite.flags.insert(flag.clone());
-        println!("{}", dinomite);
-        dinomite.check_neighbors(&flag); // this should not do anything
-        println!("{}", dinomite);
-        println!("{:?}", dinomite.seen);
-        dinomite.check_position(&flag); // this should not do anything
-        println!("{}", dinomite);
-        println!("{:?}", dinomite.seen);
-        assert_eq!(dinomite.game_over, false);
     }
 }
