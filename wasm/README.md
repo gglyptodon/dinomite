@@ -1,6 +1,8 @@
 # dinomite
 A Minesweeper Clone
 
+Play it here: https://gglyptodon.github.io/dinomite/
+
 Goal: uncover all the tiles with no hiding dinos
 - left-click on a tile to see the number of dinos in the adjacent tiles
 - tiles with zero neighboring dinos show up as white squares
