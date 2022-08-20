@@ -33,11 +33,11 @@ pub fn check_neighbors(x: usize, y: usize) {
 }
 
 #[wasm_bindgen(js_name=isGameOver)]
-pub fn is_game_over() -> bool {
+pub fn is_game_over()->bool {
     DINOMITE.with(|dm| dm.borrow().is_game_over())
 }
 
 #[wasm_bindgen(js_name=isWon)]
-pub fn is_won() -> bool {
+pub fn is_won()->bool {
     DINOMITE.with(|dm| dm.borrow().is_won())
 }
