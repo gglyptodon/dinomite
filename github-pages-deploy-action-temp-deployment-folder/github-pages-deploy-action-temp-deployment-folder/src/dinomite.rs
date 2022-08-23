@@ -114,6 +114,9 @@ impl Dinomite {
         if self.flags.contains(&pos) {
             return;
         }
+        if !self.seen.contains(&pos){
+            return;
+        }
         let neighbors = self.get_neighbors(pos).collect::<Vec<Position>>();
         let mut num_flags_set = 0;
         for n in &neighbors {
