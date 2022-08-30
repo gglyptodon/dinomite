@@ -14,10 +14,15 @@ Goal: uncover all the tiles with no hiding dinos
 
 ## Build and Run
 - ``cargo install wasm-pack``
-- ``wasm-pack build --target web``
+- ``wasm-pack build --target web -d wasm``
 - ``python3 -m http.server --bind localhost``
 - Then go to http://127.0.0.1:8000/ 
 
+### Alternatively w/ build and run with docker
+- ``docker build --rm -t dinomite .``
+- ``docker run -p 8000:7000 -t dinomite``
+- Then go to http://127.0.0.1:8000/
+ 
 
 ---
 Credits:
