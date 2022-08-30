@@ -26,16 +26,16 @@ jobs:
         with:
           command: check
           args: --target wasm32-unknown-unknown
-      - run: wasm-pack build --target web -d wasm
+      - run: wasm-pack build --target web -d wasm_out
       - run: |
-            ls && cp index.html wasm/
-            sed -i 's/wasm\/dinomite.js/dinomite.js/' wasm/index.html
-            cat wasm/index.html
+            ls && cp index.html wasm_out/
+            sed -i 's/wasm\/dinomite.js/dinomite.js/' wasm_out/index.html
+            cat wasm_out/index.html
             ls 
-            ls wasm/
-            ls dinomite/
+            ls wasm_out/
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.5
         with:
           branch: gh-pages # The branch the action should deploy to.
-          folder: wasm
+          folder: wasm_out
+          clean: true
