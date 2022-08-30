@@ -28,8 +28,12 @@ jobs:
           args: --target wasm32-unknown-unknown
       - run: wasm-pack build --target web -d wasm
       - run: |
-            cp index.html wasm/
-            sed -i 's/wasm\/dinomite.js/dinomite.js/' wasm/index.html 
+            ls && cp index.html wasm/
+            sed -i 's/wasm\/dinomite.js/dinomite.js/' wasm/index.html
+            cat wasm/index.html
+            ls 
+            ls wasm/
+            ls dinomite/
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.5
         with:
