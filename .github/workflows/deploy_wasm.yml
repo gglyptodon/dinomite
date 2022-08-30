@@ -1,5 +1,6 @@
 name: wasm
-
+permissions:
+  contents: write
 on:
   push:
     branches: [ "main" ]
@@ -9,33 +10,36 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
- 
-  wasm:
-    name: Generate wasm output
+   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
-      - run: rustup target add wasm32-unknown-unknown
-      - run: cargo install -f wasm-pack
-      - uses: actions-rs/cargo@v1
+      - name: add wasm32-unknown-unknown target
+        run: rustup target add wasm32-unknown-unknown
+      - name: wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
         with:
-          command: check
-          args: --target wasm32-unknown-unknown
-      - run: wasm-pack build --target web -d wasm_out
-      - run: |
-            ls && cp index.html wasm_out/
-            sed -i 's/wasm\/dinomite.js/dinomite.js/' wasm_out/index.html
-            cat wasm_out/index.html
-            ls 
-            ls wasm_out/
+          version: 'latest'         
+      - name: build 
+        run: |
+          wasm-pack build --target web -d wasm_out 
+          ls && cp index.html wasm_out/
+          sed -i 's/wasm\/dinomite.js/dinomite.js/' wasm_out/index.html
+          cat wasm_out/index.html
+          ls
+          echo "contents of wasm_out:"
+          ls wasm_out/
+          echo "###"
+        
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.5
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: wasm_out
-          clean: true
