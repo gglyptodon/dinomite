@@ -1,0 +1,36 @@
+name: wasm
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+ 
+  wasm:
+    name: Generate wasm output
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo install -f wasm-pack
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --target wasm32-unknown-unknown
+      - run: wasm-pack build --target web -d wasm
+      - run: |
+            cp index.html wasm/
+            sed -i 's/wasm\/dinomite.js/dinomite.js/' wasm/index.html 
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: wasm
